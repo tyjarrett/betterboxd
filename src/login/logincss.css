@@ -1,0 +1,13 @@
+.landingContainer {
+  display: flexbox;
+  justify-content: center;
+  align-items: center;
+  width: 75%;
+}
+
+.landingText {
+  padding: 15%;
+}
+
+.landingInput {
+}
