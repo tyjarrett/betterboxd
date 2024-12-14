@@ -97,13 +97,14 @@ class OtherRatings(APIView):
     
 class SongRatings(APIView):
     def post(self, request):
-        ratings = models.Rating.objects.filter(songId = request.data["songId"])
+        song = get_object_or_404(models.Song, pk=request.data["songId"])
+        ratings = models.Rating.objects.filter(songId = song)
         response = {}
         for rate in ratings:
             res = {
                 "comment": rate.comment,
                 "stars": rate.stars,
-                "userId": rate.userId
+                "userId": rate.userId.id
             }
             response[rate.pk] = res
         return Response(response, status=status.HTTP_200_OK)
