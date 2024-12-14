@@ -73,22 +73,23 @@ class AllRatings(APIView):
         response = {}
         for rate in ratings:
             res = {
-                "songId": rate.songId,
+                "songId": rate.songId.id,
                 "comment": rate.comment,
                 "stars": rate.stars,
-                "userId": rate.userId
+                "userId": rate.userId.id
             }
             response[rate.pk] = res
         return Response(response, status=status.HTTP_200_OK)
     
 class OtherRatings(APIView):
     def post(self, request):
-        ratings = models.Rating.objects.all().exclude(userId=request.data["userId"])
+        user = get_object_or_404(models.User, pk=request.data["userId"])
+        ratings = models.Rating.objects.all().exclude(userId=user)
         response = {}
         for rate in ratings:
             res = {
-                "songId": rate.songId,
-                "userId": rate.userId,
+                "songId": rate.songId.id,
+                "userId": rate.userId.id,
                 "stars": rate.stars
             }
             response[rate.pk] = res
@@ -124,7 +125,9 @@ class Rating(APIView):
     
 class UpdateRating(APIView):
     def post(self, request):
-        rating, created = models.Rating.objects.update_or_create(songId=request.data["songId"], userId = request.data["userId"])
+        song = get_object_or_404(models.Song, pk=request.data["songId"])
+        user = get_object_or_404(models.User, pk=request.data["userId"])
+        rating, created = models.Rating.objects.update_or_create(songId = song, userId = user)
         rating.stars = request.data["stars"]
         rating.comment = request.data["comment"]
         rating.save()
@@ -135,14 +138,17 @@ class Saved(APIView):
         saves = models.Saved.objects.filter(userId = request.data["userId"])
         response = {}
         for save in saves:
-            res = {"songId": save.songId}
+            res = {"songId": save.songId.id}
             response[save.pk] = res
         return Response(response, status=status.HTTP_200_OK)
     
 class SaveSong(APIView):
     def post(self, request):
-        saved, created= models.Saved.objects.update_or_create(songId=request.data["songId"], userId = request.data["userId"])
-        saved.save()
+        song = get_object_or_404(models.Song, pk=request.data["songId"])
+        user = get_object_or_404(models.User, pk=request.data["userId"])
+        saved, created = models.Saved.objects.get_or_create(songId = song, userId = user)
+        # saved, created= models.Saved.objects.get_or_create(defaults={"songId": song.id, "userId": user.id})
+        # saved.save()
         return Response(saved.pk, status=status.HTTP_200_OK)
     
     def delete(self, request):

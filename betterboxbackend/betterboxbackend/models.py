@@ -29,8 +29,8 @@ class RatingManager(models.Manager):
 class Rating(models.Model):
     stars = models.DecimalField(max_digits=2, decimal_places=1, default=-1)
     comment = models.CharField(max_length=200)
-    songId = models.IntegerField()
-    userId = models.IntegerField()
+    songId = models.ForeignKey(Song, on_delete=models.CASCADE)
+    userId = models.ForeignKey(User, on_delete=models.CASCADE)
     objects = RatingManager()
 
 class SavedManager(models.Manager):
@@ -38,6 +38,6 @@ class SavedManager(models.Manager):
         print("hello")
 
 class Saved(models.Model):
-    songId = models.IntegerField()
-    userId = models.IntegerField()
+    songId = models.ForeignKey(Song, on_delete=models.CASCADE)
+    userId = models.ForeignKey(User, on_delete=models.CASCADE)
     objects = SavedManager()
